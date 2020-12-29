@@ -63,6 +63,34 @@ day1 ls = parse ls
         & dist
 
 {-
+--- Part Two ---
+
+Then, you notice the instructions continue on the back of the Recruiting Document. Easter Bunny HQ is actually at the first location you visit twice.
+
+For example, if your instructions are R8, R4, R4, R8, the first location you visit twice is 4 blocks away, due East.
+
+How many blocks away is the first location you visit twice?
 -}
 
-day1b ls = "hello world"
+rotate (pos, (dx,dy)) 'R' = (pos, (dy, -dx))
+rotate (pos, (dx,dy)) 'L' = (pos, (-dy, dx))
+
+forward ((x, y), (dx, dy)) = ((x + dx, y + dy), (dx, dy))
+
+trace path = trace0 start (Set.singleton (0, 0)) path
+  where
+    trace0 pos visited ((d:ds):rest) =
+      let dist = read ds
+      in case trace1 (rotate pos d) visited dist of
+          Left (pos', visited')  -> trace0 pos' visited' rest
+          Right (pos', visited') -> pos'
+    trace1 pos visited 0 = Left (pos, visited)
+    trace1 pos visited n =
+      let new = forward pos
+      in  if Set.member (fst new) visited then Right (new, visited)
+          else trace1 new (Set.insert (fst new) visited) (n-1)
+
+
+day1b ls = parse ls
+         & trace 
+         & dist

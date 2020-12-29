@@ -44,3 +44,7 @@ main =
         Day1.dist (Day1.run Day1.start $ Day1.parse ["R2, L3"]) `shouldBe` 5
         (Day1.run Day1.start $ Day1.parse ["R2, R2, R2"]) `shouldBe` ((0,-2), (-1,0))
         Day1.dist (Day1.run Day1.start $ Day1.parse ["R5, L5, R5, R3"]) `shouldBe` 12
+
+      it "solves part 2" $ do
+        let (pos, dir) = Day1.trace (Day1.parse ["R8, R4, R4, R8"])
+        pos `shouldBe` (4, 0)
