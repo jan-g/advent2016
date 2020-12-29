@@ -107,6 +107,11 @@ mapFrom (M _ m) = m
 day8 ls = parse ls & runAll (blankMap (50, 6)) & mapFrom & Map.filter (=='#') & Map.size
 
 {-
+--- Part Two ---
+
+You notice that the screen is only capable of displaying capital letters; in the font it uses, each letter is 5 pixels wide and 6 tall.
+
+After you swipe your card, what code is the screen trying to display?
 -}
 
-day8b ls = "hello world"
+day8b ls = parse ls & runAll (blankMap (50, 6)) & mapFrom & drawMapWith (\_ (Just c) -> c) & unlines
