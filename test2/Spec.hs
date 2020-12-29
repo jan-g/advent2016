@@ -53,4 +53,15 @@ main =
                       \ioxxoj[asdfgh]zxcvbn" & lines
             egs = Day7.parse example
         map Day7.passable egs `shouldBe` [True, False, False, True]
+      
+      it "locates ABAs" $ do
+        Day7.findABAs "zazbz" `shouldBe` Set.fromList [('z', 'a'), ('z', 'b')]
+      
+      it "confirms SSL operation" $ do
+        let example = "aba[bab]xyz\n\
+                      \xyx[xyx]xyx\n\
+                      \aaa[kek]eke\n\
+                      \zazbz[bzb]cdb" & lines     
+            egs = Day7.parse example
+        map Day7.doesSsl egs `shouldBe` [True, False, True, True]
         
