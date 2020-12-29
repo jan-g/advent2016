@@ -29,19 +29,38 @@ In a valid triangle, the sum of any two sides must be larger than the remaining 
 In your puzzle input, how many of the listed triangles are possible?
 -}
 
-parse :: [String] -> [(Integer, Integer, Integer)]
+parse :: [String] -> [[Integer]]
 parse ls = ls
-         & map (\l -> splitOn " " l & filter (/= ""))
-         & map (\[a,b,c] -> (read a, read b, read c))
+         & map (\l -> splitOn " " l & filter (/= "") & map read)
 
-orient (a,b,c) = let a' = minimum [a,b,c]
+orient [a,b,c] = let a' = minimum [a,b,c]
                      c' = maximum [a,b,c]
                      b' = (a + b + c) - a' - c'
-                 in (a', b', c')
+                 in [a', b', c']
 
-day3 ls = parse ls & map orient & filter (\(a,b,c) -> a + b > c) & length
+good [a,b,c] = a + b > c
+
+day3 ls = parse ls & map orient & filter good & length
 
 {-
+--- Part Two ---
+
+Now that you've helpfully marked up their design documents, it occurs to you that triangles are specified in groups of three vertically. Each set of three numbers in a column specifies a triangle. Rows are unrelated.
+
+For example, given the following specification, numbers with the same hundreds digit would be part of the same triangle:
+
+101 301 501
+102 302 502
+103 303 503
+201 401 601
+202 402 602
+203 403 603
+
+In your puzzle input, and instead reading by columns, how many of the listed triangles are possible?
 -}
 
-day3b ls = "hello world"
+day3b ls =
+  let [a,b,c] = parse ls & transpose
+      all = a ++ b ++ c
+      tris = chunksOf 3 all
+  in tris & map orient & filter good & length
