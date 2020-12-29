@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ac78c5c80901d23a4b961d8ca5f6e20e1e7e6781c3a88a8f7821bf045d728b41
+-- hash: 3832988f800f2205f9088f26d696410ed9db6f0e20a3f0905c58beccff641dbc
 
 name:           advent2016
 version:        0.1.0.0
@@ -103,6 +103,31 @@ test-suite advent2016-test
       Paths_advent2016
   hs-source-dirs:
       test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      advent2016
+    , array
+    , base >=4.7 && <5
+    , base16-bytestring
+    , bytestring
+    , containers
+    , cryptohash-md5
+    , hex-text
+    , hspec >=2.5.5
+    , matrix
+    , sort
+    , split
+    , strings >=1.1
+    , utf8-string
+  default-language: Haskell2010
+
+test-suite advent2016-test-2
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_advent2016
+  hs-source-dirs:
+      test2
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       advent2016

@@ -8,7 +8,7 @@ import qualified Data.Set as Set
 import Control.Monad
 import Data.List.Split (splitOn)
 import Data.List as L
-import Data.Maybe (catMaybes)
+import Data.Maybe (catMaybes, fromJust)
 import qualified Data.ByteString.UTF8 as BSU
 
 import Lib
@@ -81,11 +81,20 @@ main =
 
     describe "day 5" $ do
       it "hashes" $ do
-        Day5.hash "abc" 3231929 `shouldBe` Just '1'
-        Day5.hash "abc" 5017308 `shouldBe` Just '8'
+        (Day5.hash "abc" 3231929 & fromJust & fst) `shouldBe` 1
+        (Day5.hash "abc" 5017308 & fromJust & fst) `shouldBe` 8
 
       it "finds a password" $ do
         take 2 (Day5.pwd "abc") `shouldBe` "18"
-      
+
       it "finds the whole password" $ do
-        Day5.pwd "abc" `shouldBe` "18f47a30"       
+        Day5.pwd "abc" `shouldBe` "18f47a30"
+      
+      it "finds the password using the alternative scheme" $ do
+        Day5.scan 2 Map.empty "abc" 0 `shouldBe` Map.fromList [(1, 5), (4, 14)]
+
+      it "doesn't overwrite" $ do
+        Day5.scan 2 (Map.singleton 1 3) "abc" 0 `shouldBe` Map.fromList [(1, 3), (4, 14)]
+  
+      it "produces a complete answer" $ do
+        Day5.pwd' "abc" `shouldBe` "05ace8e3"
