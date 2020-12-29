@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cfd6cae34e66afd1655ceb1b8c0632735dec184b6e3c166b82054d3e668f9704
+-- hash: ac78c5c80901d23a4b961d8ca5f6e20e1e7e6781c3a88a8f7821bf045d728b41
 
 name:           advent2016
 version:        0.1.0.0
@@ -65,6 +65,7 @@ library
     , bytestring
     , containers
     , cryptohash-md5
+    , hex-text
     , matrix
     , sort
     , split
@@ -87,6 +88,7 @@ executable advent2016-exe
     , bytestring
     , containers
     , cryptohash-md5
+    , hex-text
     , matrix
     , sort
     , split
@@ -110,6 +112,7 @@ test-suite advent2016-test
     , bytestring
     , containers
     , cryptohash-md5
+    , hex-text
     , hspec >=2.5.5
     , matrix
     , sort

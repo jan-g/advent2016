@@ -9,6 +9,7 @@ import Control.Monad
 import Data.List.Split (splitOn)
 import Data.List as L
 import Data.Maybe (catMaybes)
+import qualified Data.ByteString.UTF8 as BSU
 
 import Lib
 import qualified Day1
@@ -77,4 +78,14 @@ main =
       it "decrypts" $ do
         let r = Day4.Room ["qzmt", "zixmtkozy", "ivhz"] 343 ""
         Day4.decrypt r `shouldBe` "very encrypted name"
-        
+
+    describe "day 5" $ do
+      it "hashes" $ do
+        Day5.hash "abc" 3231929 `shouldBe` Just '1'
+        Day5.hash "abc" 5017308 `shouldBe` Just '8'
+
+      it "finds a password" $ do
+        take 2 (Day5.pwd "abc") `shouldBe` "18"
+      
+      it "finds the whole password" $ do
+        Day5.pwd "abc" `shouldBe` "18f47a30"       

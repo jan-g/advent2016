@@ -42,6 +42,8 @@ packages:
 extra-deps:
   - strings-1.1
   - matrix-0.3.6.1
+  - hex-text-0.1.0.2
+  - base16-bytestring-1.0.1.0
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
