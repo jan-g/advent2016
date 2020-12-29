@@ -49,28 +49,57 @@ Your puzzle input is the instructions from the document you found at the front d
 
 parse ls = ls
 
-grid = Map.fromList [((-1, 1), 1), ((0, 1), 2), ((1, 1), 3),
-                     ((-1, 0), 4), ((0, 0), 5), ((1, 0), 6),
-                     ((-1,-1), 7), ((0,-1), 8), ((1,-1), 9)]
+grid = "123\n\
+       \456\n\
+       \789" & lines & loadMap & flipYMap & offsetMap (-1,-1)
 
 dir 'U' = (0, 1)
 dir 'D' = (0, -1)
 dir 'L' = (-1, 0)
 dir 'R' = (1, 0)
 
-move (x, y) d = let (dx, dy) = dir d
-                    (x', y') = (x + dx, y + dy)
-                in  if Map.member (x', y') grid then (x', y') else (x, y)
+move g (x, y) d = let (dx, dy) = dir d
+                      (x', y') = (x + dx, y + dy)
+                  in  if Map.member (x', y') g then (x', y') else (x, y)
 
-follow (x0, y0) line = foldl move (x0, y0) line
+follow g (x0, y0) line = foldl (move g) (x0, y0) line
 
-followAll instrs = foldl (\(acc, pos) line -> let pos' = follow pos line in (acc ++ [pos'], pos')) ([], (0, 0)) instrs 
+positionOf g d = g & Map.filter (==d) & Map.toList & head & fst
 
-decode instrs = let (path, _) = followAll instrs in map (grid Map.!) path
+followAll g instrs = foldl (\(acc, pos) line -> let pos' = follow g pos line in (acc ++ [pos'], pos')) ([], positionOf g '5') instrs
 
-day2 ls = decode ls
+decode g instrs = let (path, _) = followAll g instrs in map (g Map.!) path
+
+day2 ls = decode grid ls
 
 {-
+--- Part Two ---
+
+You finally arrive at the bathroom (it's a several minute walk from the lobby so visitors can behold the many fancy conference rooms and water coolers on this floor) and go to punch in the code. Much to your bladder's dismay, the keypad is not at all like you imagined it. Instead, you are confronted with the result of hundreds of man-hours of bathroom-keypad-design meetings:
+
+    1
+  2 3 4
+5 6 7 8 9
+  A B C
+    D
+
+You still start at "5" and stop when you're at an edge, but given the same instructions as above, the outcome is very different:
+
+    You start at "5" and don't move at all (up and left are both edges), ending at 5.
+    Continuing from "5", you move right twice and down three times (through "6", "7", "B", "D", "D"), ending at D.
+    Then, from "D", you move five more times (through "D", "B", "C", "C", "B"), ending at B.
+    Finally, after five more moves, you end at 3.
+
+So, given the actual keypad layout, the code would be 5DB3.
+
+Using the same instructions in your puzzle input, what is the correct bathroom code?
 -}
 
-day2b ls = "hello world"
+grid' = "  1  \n\
+        \ 234 \n\
+        \56789\n\
+        \ ABC \n\
+        \  D  " & lines & loadMap & Map.filter (/= ' ') & flipYMap
+
+day2b ls = decode grid' ls
+

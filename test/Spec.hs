@@ -57,5 +57,8 @@ main =
                     \LURDL\n\
                     \UUUUD" & lines
       it "follows a series of coordinates" $ do
-        Day2.followAll example `shouldBe` ([(-1,1), (1,-1), (0,-1), (0, 0)], (0, 0))
-        Day2.decode example `shouldBe` [1,9,8,5]
+        Day2.followAll Day2.grid example `shouldBe` ([(-1,1), (1,-1), (0,-1), (0, 0)], (0, 0))
+        Day2.decode Day2.grid example `shouldBe` "1985"
+      
+      it "loads the new grid" $ do
+        Day2.decode Day2.grid' example `shouldBe` "5DB3"
