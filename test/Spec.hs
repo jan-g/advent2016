@@ -41,4 +41,6 @@ main =
   hspec $ do
     describe "Day1" $ do
       it "correctly runs on the test data" $ do
-        1 `shouldBe` 1
+        Day1.dist (Day1.run Day1.start $ Day1.parse ["R2, L3"]) `shouldBe` 5
+        (Day1.run Day1.start $ Day1.parse ["R2, R2, R2"]) `shouldBe` ((0,-2), (-1,0))
+        Day1.dist (Day1.run Day1.start $ Day1.parse ["R5, L5, R5, R3"]) `shouldBe` 12
