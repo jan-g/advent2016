@@ -42,6 +42,15 @@ import qualified Day25
 main :: IO ()
 main =
   hspec $ do
-    describe "Day1" $ do
-      it "correctly runs on the test data" $ do
-        Day1.dist (Day1.run Day1.start $ Day1.parse ["R2, L3"]) `shouldBe` 5
+    describe "Day 7" $ do
+      it "works out cromulent strings" $ do
+        map Day7.cromulent ["abba", "mnop", "qrst", "aaaa", "koxxol"] `shouldBe` [True, False, False, False, True]
+
+      it "applies the rules" $ do
+        let example = "abba[mnop]qrst\n\
+                      \abcd[bddb]xyyx\n\
+                      \aaaa[qwer]tyui\n\
+                      \ioxxoj[asdfgh]zxcvbn" & lines
+            egs = Day7.parse example
+        map Day7.passable egs `shouldBe` [True, False, False, True]
+        
