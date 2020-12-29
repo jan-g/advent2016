@@ -12,6 +12,7 @@ import Data.Maybe (catMaybes)
 
 import Lib
 import qualified Day1
+import qualified Day2
 import qualified Day3
 import qualified Day4
 import qualified Day5
@@ -34,6 +35,7 @@ import qualified Day21
 import qualified Day22
 import qualified Day23
 import qualified Day24
+import qualified Day25
 
 
 main :: IO ()
@@ -48,3 +50,12 @@ main =
       it "solves part 2" $ do
         let (pos, dir) = Day1.trace (Day1.parse ["R8, R4, R4, R8"])
         pos `shouldBe` (4, 0)
+
+    describe "Day 2" $ do
+      let example = "ULL\n\
+                    \RRDDD\n\
+                    \LURDL\n\
+                    \UUUUD" & lines
+      it "follows a series of coordinates" $ do
+        Day2.followAll example `shouldBe` ([(-1,1), (1,-1), (0,-1), (0, 0)], (0, 0))
+        Day2.decode example `shouldBe` [1,9,8,5]
