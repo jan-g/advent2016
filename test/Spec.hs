@@ -73,4 +73,8 @@ main =
         map Day4.valid rs `shouldBe` [True, True, True, False]
       it "sums" $ do
         Day4.day4 example `shouldBe` 1514
+
+      it "decrypts" $ do
+        let r = Day4.Room ["qzmt", "zixmtkozy", "ivhz"] 343 ""
+        Day4.decrypt r `shouldBe` "very encrypted name"
         
