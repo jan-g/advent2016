@@ -59,6 +59,18 @@ main =
       it "follows a series of coordinates" $ do
         Day2.followAll Day2.grid example `shouldBe` ([(-1,1), (1,-1), (0,-1), (0, 0)], (0, 0))
         Day2.decode Day2.grid example `shouldBe` "1985"
-      
+
       it "loads the new grid" $ do
         Day2.decode Day2.grid' example `shouldBe` "5DB3"
+
+    describe "Day 4" $ do
+      let example = "aaaaa-bbb-z-y-x-123[abxyz]\n\
+                    \a-b-c-d-e-f-g-h-987[abcde]\n\
+                    \not-a-real-room-404[oarel]\n\
+                    \totally-real-room-200[decoy]" & lines
+          rs = Day4.parse example
+      it "validates" $ do
+        map Day4.valid rs `shouldBe` [True, True, True, False]
+      it "sums" $ do
+        Day4.day4 example `shouldBe` 1514
+        
