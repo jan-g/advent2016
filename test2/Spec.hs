@@ -83,3 +83,16 @@ main =
             ] $ \(i, o) -> do
         it ("should expand " ++ i) $ do
           quickParse Day9.expand' i `shouldBe` Just o
+
+    describe "day 10" $ do
+      let example = "value 5 goes to bot 2\n\
+                    \bot 2 gives low to bot 1 and high to bot 0\n\
+                    \value 3 goes to bot 1\n\
+                    \bot 1 gives low to output 1 and high to bot 0\n\
+                    \bot 0 gives low to output 2 and high to output 0\n\
+                    \value 2 goes to bot 2" & lines
+      it "runs the example" $ do
+        putStrLn $ show $ Day10.parse example
+        let s = Day10.day10 example
+        Day10.outputs s `shouldBe` Map.fromList [(0, 5), (1, 2), (2, 3)]
+        Day10.comparisons s Map.! (2, 5) `shouldBe` 2
