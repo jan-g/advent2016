@@ -53,15 +53,15 @@ main =
                       \ioxxoj[asdfgh]zxcvbn" & lines
             egs = Day7.parse example
         map Day7.passable egs `shouldBe` [True, False, False, True]
-      
+
       it "locates ABAs" $ do
         Day7.findABAs "zazbz" `shouldBe` Set.fromList [('z', 'a'), ('z', 'b')]
-      
+
       it "confirms SSL operation" $ do
         let example = "aba[bab]xyz\n\
                       \xyx[xyx]xyx\n\
                       \aaa[kek]eke\n\
-                      \zazbz[bzb]cdb" & lines     
+                      \zazbz[bzb]cdb" & lines
             egs = Day7.parse example
         map Day7.doesSsl egs `shouldBe` [True, False, True, True]
 
@@ -75,3 +75,11 @@ main =
             ] $ \(i, o) -> do
         it ("should expand " ++ i) $ do
           quickParse Day9.expand i `shouldBe` Just o
+
+      forM_ [ ("(3x3)XYZ", fromIntegral $ length "XYZXYZXYZ")
+            , ("X(8x2)(3x3)ABCY", fromIntegral $ length "XABCABCABCABCABCABCY")
+            , ("(27x12)(20x12)(13x14)(7x10)(1x12)A", 241920)
+            , ("(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN", 445)
+            ] $ \(i, o) -> do
+        it ("should expand " ++ i) $ do
+          quickParse Day9.expand' i `shouldBe` Just o
