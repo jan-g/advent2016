@@ -134,6 +134,10 @@ run !s
 day10 ls = parse ls & makeState & run & comparisons & (Map.! (17, 61))
 
 {-
+--- Part Two ---
+
+What do you get if you multiply together the values of one chip in each of outputs 0, 1, and 2?
 -}
 
-day10b ls = "hello world"
+day10b ls = let os = parse ls & makeState & run & outputs
+            in  (os Map.! 0) * (os Map.! 1) * (os Map.! 2)
