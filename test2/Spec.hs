@@ -64,4 +64,14 @@ main =
                       \zazbz[bzb]cdb" & lines     
             egs = Day7.parse example
         map Day7.doesSsl egs `shouldBe` [True, False, True, True]
-        
+
+    describe "day 9" $ do
+      forM_ [ ("advent", "advent")
+            , ("A(1x5)BC", "ABBBBBC")
+            , ("(3x3)XYZ", "XYZXYZXYZ")
+            , ("A(2x2)BCD(2x2)EFG", "ABCBCDEFEFG")
+            , ("(6x1)(1x3)A", "(1x3)A")
+            , ("X(8x2)(3x3)ABCY", "X(3x3)ABC(3x3)ABCY")
+            ] $ \(i, o) -> do
+        it ("should expand " ++ i) $ do
+          quickParse Day9.expand i `shouldBe` Just o
