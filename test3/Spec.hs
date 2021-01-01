@@ -10,6 +10,7 @@ import Data.List.Split (splitOn)
 import Data.List as L
 import Data.Maybe (catMaybes, fromJust, isJust)
 import qualified Data.ByteString.UTF8 as BSU
+import qualified Data.Sequence as Seq
 
 import Lib
 import qualified Day1
@@ -94,3 +95,9 @@ main =
       it "runs the small example" $ do
         let elves = Day19.starting 5
         Day19.move 1 elves `shouldBe` Map.singleton 3 (3, 5)
+      
+      it ("runs part2 for 5") $ do
+        (Day19.part2 $ Seq.fromList [1..5]) `shouldBe` 2
+
+      it "runs part 2" $ do
+        Day19.day19b ["5"] `shouldBe` Map.singleton 2 2
