@@ -110,4 +110,35 @@ main =
             q = Day20.rangesToHeap ranges
         Day20.process' 10 0 0 0 q `shouldBe` 2
         Day20.process' 9 0 0 0 q `shouldBe` 1
-        
+
+    describe "day 21" $ do
+      it "handles individual moves" $ do
+        -- swap position 4 with position 0 swaps the first and last letters, producing the input for the next step, ebcda.
+        Day21.interpret (Day21.SwapPos 4 0) "abcde" `shouldBe` "ebcda"
+        -- swap letter d with letter b swaps the positions of d and b: edcba.
+        Day21.interpret (Day21.SwapChar 'd' 'b') "ebcda" `shouldBe` "edcba"
+        -- reverse positions 0 through 4 causes the entire string to be reversed, producing abcde.
+        Day21.interpret (Day21.Reverse 0 4) "edcba" `shouldBe` "abcde"
+        -- rotate left 1 step shifts all letters left one position, causing the first letter to wrap to the end of the string: bcdea.
+        Day21.interpret (Day21.RotRight (-1)) "abcde" `shouldBe` "bcdea"
+        -- move position 1 to position 4 removes the letter at position 1 (c), then inserts it at position 4 (the end of the string): bdeac.
+        Day21.interpret (Day21.Move 1 4) "bcdea" `shouldBe` "bdeac"
+        -- move position 3 to position 0 removes the letter at position 3 (a), then inserts it at position 0 (the front of the string): abdec.
+        Day21.interpret (Day21.Move 3 0) "bdeac" `shouldBe` "abdec"
+        -- rotate based on position of letter b finds the index of letter b (1), then rotates the string right once plus a number of times equal to that index (2): ecabd.
+        Day21.interpret (Day21.RotOnChar 'b') "abdec" `shouldBe` "ecabd"
+        -- rotate based on position of letter d finds the index of letter d (4), then rotates the string right once, plus a number of times equal to that index, plus an additional time because the index was at least 4, for a total of 6 right rotations: decab.
+        Day21.interpret (Day21.RotOnChar 'd') "ecabd" `shouldBe` "decab"
+
+      it "runs the example" $ do
+        let example = "swap position 4 with position 0\n\
+                      \swap letter d with letter b\n\
+                      \reverse positions 0 through 4\n\
+                      \rotate left 1 step\n\
+                      \move position 1 to position 4\n\
+                      \move position 3 to position 0\n\
+                      \rotate based on position of letter b\n\
+                      \rotate based on position of letter d" & lines
+            prog = Day21.parse example
+        length prog `shouldBe` 8
+        Day21.process prog "abcde" `shouldBe` "decab"
