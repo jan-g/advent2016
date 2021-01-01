@@ -47,7 +47,7 @@ main =
                     \Disc #2 has 2 positions; at time=0, it is at position 1." & lines
       it "parses" $ do
         Day15.parse example `shouldBe` [(1, 5, 4), (2, 2, 1)]
-      
+
       it "solves" $ do
         Day15.day15 example `shouldBe` 5
 
@@ -62,7 +62,7 @@ main =
 
       it "checksums correctly" $ do
         Day16.repeatedChecksum "110010110100" `shouldBe` "100"
-      
+
       it "solves the example" $ do
         Day16.partA "10000" 20 `shouldBe` "01100"
 
@@ -75,4 +75,11 @@ main =
         snd <$> (Day17.hunt "kglvqrro") `shouldBe` Just (3, 3, "kglvqrroDDUDRLRRUDRD")
       it "solves ex3" $ do
         snd <$> Day17.hunt "ulqzkmiv" `shouldBe` Just (3, 3, "ulqzkmivDRURDRUDDLLDLUURRDULRLDUUDDDRR")
-        
+
+      forM_ [ ("ihgpwlah", 370)
+            , ("kglvqrro", 492)
+            , ("ulqzkmiv", 830)
+            ] $ \(i, o) -> do
+        it ("finds the longest for " ++ i) $ do
+          Day17.longest i `shouldBe` Just o
+

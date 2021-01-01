@@ -11,6 +11,8 @@ import Data.Maybe (catMaybes, isJust, fromJust)
 import Data.Bits ((.&.), (.|.))
 import MD5 (hash)
 
+import Debug.Trace (trace)
+
 import Lib
 
 
@@ -26,7 +28,7 @@ You're trying to access a secure vault protected by a 4x4 grid of small rooms co
 #-#-#-#-#
 # | | | #
 #-#-#-#-#
-# | | |  
+# | | |
 ####### V
 
 Fixed walls are marked with #, and doors are marked with - or |.
@@ -64,7 +66,7 @@ exits (x, y, path) =
       , if x > 0 && open left then Just (x-1, y, path ++ "L") else Nothing
       , if x < 3 && open right then Just (x+1, y, path ++ "R") else Nothing
       ] & catMaybes
-  
+
 open 'b' = True
 open 'c' = True
 open 'd' = True
@@ -72,7 +74,9 @@ open 'e' = True
 open 'f' = True
 open _ = False
 
-next (c, (x, y, path)) = Set.fromList [(succ c, p) | p <- exits (x, y, path)]
+next (c, (x, y, path)) = if (x,y) == (3,3) then Set.empty
+                          else Set.fromList [(succ c, p) | p <- exits (x, y, path)]
+
 finished (c, (x, y, path)) = x == 3 && y == 3
 
 hunt prefix =
@@ -80,9 +84,38 @@ hunt prefix =
 
 day17 ls = let prefix = parse ls
                Just (_, (_, _, path)) = hunt prefix
-           in  drop (length prefix) path 
+           in  drop (length prefix) path
 
 {-
+--- Part Two ---
+
+You're curious how robust this security solution really is, and so you decide to find longer and longer paths which still provide access to the vault. You remember that paths always end the first time they reach the bottom-right room (that is, they can never pass through it, only end in it).
+
+For example:
+
+    If your passcode were ihgpwlah, the longest path would take 370 steps.
+    With kglvqrro, the longest path would be 492 steps long.
+    With ulqzkmiv, the longest path would be 830 steps long.
+
+What is the length of the longest path that reaches the vault?
 -}
 
-day17b ls = "hello world"
+
+dfs :: (state -> Set.Set state)
+    -> (state -> Bool)
+    -> (state -> state -> state)
+    -> state
+    -> Maybe state
+dfs next finished better state =
+  if finished state then Just state
+  else
+    foldl (\best state' -> case dfs next finished better state' of
+                            Just performance ->
+                               case best of Nothing -> Just performance
+                                            Just oldBest -> Just (better oldBest performance)
+                            Nothing -> best) Nothing (next state)
+
+longest prefix =
+  fst <$> dfs next finished max (0, (0, 0, prefix))
+
+day17b ls = longest (parse ls)

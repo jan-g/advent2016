@@ -206,7 +206,7 @@ search :: (Ord c, Ord s, Show c, Show s, Ord t) =>
     -> ((c, s) -> Bool)                         -- a function that tells if a state is one searched for
     -> (s -> t)                                 -- a state-summarising function to prevent repeating searches of equivalent states
     -> (c, s)                                   -- starting cost and state
-    -> Maybe (c, s, Set.Set t)                  -- a solution, if one is found
+    -> Either (Set.Set t) (c, s, Set.Set t)     -- a solution, if one is found
 search nextStates satisfying summariseState (startCost, startState) =
   bfs0 nextStates satisfying summariseState Set.empty (H.singleton (startCost, startState))
   where
@@ -216,9 +216,9 @@ search nextStates satisfying summariseState (startCost, startState) =
       -> (s -> t)                                 -- a state-summarising function to prevent repeating searches of equivalent states
       -> Set.Set t                                -- equivalent states already processed
       -> H.MinPrioHeap c s                        -- search queue
-      -> Maybe (c, s, Set.Set t)                  -- a solution, if one is found
+      -> Either (Set.Set t) (c, s, Set.Set t)     -- a solution, if one is found
   bfs0 nextStates satisfying summariseState seenStates stateQueue
-    | H.null stateQueue = Nothing
+    | H.null stateQueue = Left seenStates
     | otherwise =
       let Just ((cost, state), q') = H.view stateQueue
           summary = summariseState state
@@ -227,7 +227,7 @@ search nextStates satisfying summariseState (startCost, startState) =
           seen' = Set.insert summary seenStates
       in
       if satisfying (cost, state)
-      then Just (cost, state, seenStates)
+      then Right (cost, state, seenStates)
       else if Set.member summary seenStates
       then -- trace ("skipping seen state at " ++ (show cost)) $
            bfs0 nextStates satisfying summariseState seenStates q'
@@ -236,11 +236,13 @@ search nextStates satisfying summariseState (startCost, startState) =
 
 bfs nextStates satisfying summariseState startState =
   case search nextStates satisfying summariseState startState of
-    Nothing -> Nothing
-    Just (cost, state, _) -> Just (cost, state)
+    Left _ -> Nothing
+    Right (cost, state, _) -> Just (cost, state)
 
 -- return all the states visited until we reached the satisfying one
 flood nextStates satisfying summariseState startState =
   case search nextStates satisfying summariseState startState of
-    Nothing -> Nothing
-    Just (_, _, reached) -> Just reached
+    Left r -> Left r 
+    Right (_, _, reached) -> Right reached
+
+
