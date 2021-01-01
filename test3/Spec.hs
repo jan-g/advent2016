@@ -99,5 +99,9 @@ main =
       it ("runs part2 for 5") $ do
         (Day19.part2 $ Seq.fromList [1..5]) `shouldBe` 2
 
-      it "runs part 2" $ do
-        Day19.day19b ["5"] `shouldBe` Map.singleton 2 2
+    describe "day 20" $ do
+      it "runs the trivial example" $ do
+        let example = "5-8\n\
+                      \0-2\n\
+                      \4-7" & lines
+        Day20.day20 example `shouldBe` Just 3
