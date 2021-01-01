@@ -50,3 +50,18 @@ main =
       
       it "solves" $ do
         Day15.day15 example `shouldBe` 5
+
+    describe "Day 16" $ do
+      forM_ [("1", "100"),
+             ("0", "001"),
+             ("11111", "11111000000"),
+             ("111100001010", "1111000010100101011110000")
+             ] $ \(i, o) -> do
+        it ("expands " ++ i) $ do
+          Day16.expand i `shouldBe` o
+
+      it "checksums correctly" $ do
+        Day16.repeatedChecksum "110010110100" `shouldBe` "100"
+      
+      it "solves the example" $ do
+        Day16.partA "10000" 20 `shouldBe` "01100"
