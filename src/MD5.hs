@@ -5,6 +5,7 @@ import qualified Crypto.Hash.MD5 as OrigMD5
 import qualified Data.ByteString as B
 import qualified Data.ByteString.UTF8 as BSU
 
+hash :: String -> String
 hash str = -- trace (show idx) $
          let cs@[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p] = OrigMD5.hash (BSU.fromString str) & B.unpack
          in -- trace ("hash is " ++ show cs) $

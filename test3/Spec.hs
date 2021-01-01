@@ -65,3 +65,14 @@ main =
       
       it "solves the example" $ do
         Day16.partA "10000" 20 `shouldBe` "01100"
+
+    describe "day 17" $ do
+      it "correctly summarises failure" $ do
+        Day17.hunt "hijkl" `shouldBe` Nothing
+      it "solves ex1" $ do
+        Day17.hunt "ihgpwlah" `shouldBe` Just (6, (3, 3, "ihgpwlahDDRRRD"))
+      it "solves ex2" $ do
+        snd <$> (Day17.hunt "kglvqrro") `shouldBe` Just (3, 3, "kglvqrroDDUDRLRRUDRD")
+      it "solves ex3" $ do
+        snd <$> Day17.hunt "ulqzkmiv" `shouldBe` Just (3, 3, "ulqzkmivDRURDRUDDLLDLUURRDULRLDUUDDDRR")
+        
