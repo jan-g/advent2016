@@ -92,7 +92,51 @@ main =
                     \bot 0 gives low to output 2 and high to output 0\n\
                     \value 2 goes to bot 2" & lines
       it "runs the example" $ do
-        putStrLn $ show $ Day10.parse example
-        let s = Day10.day10 example
+        let s = Day10.parse example & Day10.makeState & Day10.run
         Day10.outputs s `shouldBe` Map.fromList [(0, 5), (1, 2), (2, 3)]
         Day10.comparisons s Map.! (2, 5) `shouldBe` 2
+
+    describe "Day 11" $ do
+      it "Parses" $ do
+        quickParse Day11.item "a frobnitz generator" `shouldBe` Just (Day11.Gen "frobnitz")
+        quickParse Day11.item "a blank-compatible microchip" `shouldBe` Just (Day11.Chip "blank")
+        quickParse Day11.items "a baz generator, and a foo-compatible microchip" `shouldBe` Just (Set.fromList [Day11.Gen "baz", Day11.Chip "foo"])
+        quickParse Day11.items "a baz generator and a foo-compatible microchip" `shouldBe` Just (Set.fromList [Day11.Gen "baz", Day11.Chip "foo"])
+
+      let example = "The first floor contains a hydrogen-compatible microchip and a lithium-compatible microchip.\n\
+                    \The second floor contains a hydrogen generator.\n\
+                    \The third floor contains a lithium generator.\n\
+                    \The fourth floor contains nothing relevant." & lines
+          layout = Day11.parse example
+      it "parses the example" $ do
+        layout `shouldBe` Map.fromList [(1, Set.fromList [Day11.Chip "hydrogen", Day11.Chip "lithium"]),
+                                        (2, Set.fromList [Day11.Gen "hydrogen"]),
+                                        (3, Set.fromList [Day11.Gen "lithium"]),
+                                        (4, Set.fromList [])]
+
+      it "generates sets of one or two items" $ do
+        Day11.oneOrTwoItems (Set.fromList [1,2,3,4]) `shouldBe` Set.fromList [Set.singleton 1, Set.singleton 2, Set.singleton 3, Set.singleton 4,
+                                                                              Set.fromList [1,2], Set.fromList [1,3], Set.fromList [1,4],
+                                                                              Set.fromList [2,3], Set.fromList [2,4],
+                                                                              Set.fromList [3,4]]
+
+      forM_ [([], True),
+             ([Day11.Chip "a", Day11.Chip "b"], True),
+             ([Day11.Chip "a", Day11.Gen "b"], False),
+             ([Day11.Chip "a", Day11.Gen "a"], True),
+             ([Day11.Chip "a", Day11.Gen "a", Day11.Chip "b"], False),
+             ([Day11.Chip "a", Day11.Gen "a", Day11.Gen "b"], True)
+             ] $ \(i, o) -> do
+        it ("checks validity of " ++ show i) $ do
+          Day11.valid (Set.fromList i) `shouldBe` o
+
+      it "seaches the example" $ do
+        (Day11.day11 example & fromJust & fst) `shouldBe` 11
+      
+      let broken = "The first floor contains a hydrogen-compatible microchip.\n\
+                   \The second floor contains nothing relevant.\n\
+                   \The third floor contains a lithium generator.\n\
+                   \The fourth floor contains nothing relevant." & lines
+      it "correctly surmises that a broken configuraiton has no solution" $ do
+        Day11.day11 broken `shouldBe` Nothing
+      

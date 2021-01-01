@@ -21,6 +21,7 @@ module Lib
     , euc
     , solveDiophantine
     , combineDiophantine
+    , bfs
     ) where
 
 import Data.Array
@@ -29,6 +30,7 @@ import Text.ParserCombinators.ReadP
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Data.Function ((&))
+import qualified Data.Heap as H
 
 loadLines fn = do
   contents <- readFile fn
@@ -196,3 +198,39 @@ combineDiophantine (m, f) (n, g) =
       m' = m * a
       f' = m * b + f
   in  (m', f')
+
+
+-- Re-usable BFS
+bfs :: (Ord c, Ord s, Show c, Show s, Ord t) =>
+       ((c, s) -> Set.Set (c, s))               -- a function that returns a set of potential next states
+    -> ((c, s) -> Bool)                         -- a function that tells if a state is one searched for
+    -> (s -> t)                                 -- a state-summarising function to prevent repeating searches of equivalent states
+    -> (c, s)                                   -- starting cost and state
+    -> Maybe (c, s)                             -- a solution, if one is found
+bfs nextStates satisfying summariseState (startCost, startState) =
+  bfs0 nextStates satisfying summariseState Set.empty (H.singleton (startCost, startState))
+  where
+  bfs0 :: (Ord c, Ord s, Show c, Show s, Ord t) =>
+         ((c, s) -> Set.Set (c, s))               -- a function that returns a set of potential next states
+      -> ((c, s) -> Bool)                         -- a function that tells if a state is one searched for
+      -> (s -> t)                                 -- a state-summarising function to prevent repeating searches of equivalent states
+      -> Set.Set t                                -- equivalent states already processed
+      -> H.MinPrioHeap c s                        -- search queue
+      -> Maybe (c, s)                             -- a solution, if one is found
+  bfs0 nextStates satisfying summariseState seenStates stateQueue
+    | H.null stateQueue = Nothing
+    | otherwise =
+      let Just ((cost, state), q') = H.view stateQueue
+          summary = summariseState state
+          nexts = nextStates (cost, state)
+          q'' = Set.foldr H.insert q' nexts
+          seen' = Set.insert summary seenStates
+      in
+      if satisfying (cost, state)
+      then Just (cost, state)
+      else if Set.member summary seenStates
+      then -- trace ("skipping seen state at " ++ (show cost)) $
+           bfs0 nextStates satisfying summariseState seenStates q'
+      else -- trace ("bfs searches: " ++ (show cost)) $
+           bfs0 nextStates satisfying summariseState seen' q''
+
