@@ -89,4 +89,8 @@ main =
       
       it "works out the larget example" $ do
         (iterate Day18.next ".^^.^.^^^^" & take 10 & concat & filter (=='.') & length) `shouldBe` 38
-        
+
+    describe "Day 19" $ do
+      it "runs the small example" $ do
+        let elves = Day19.starting 5
+        Day19.move 1 elves `shouldBe` Map.singleton 3 (3, 5)
