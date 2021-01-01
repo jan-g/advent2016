@@ -140,3 +140,15 @@ main =
       it "correctly surmises that a broken configuraiton has no solution" $ do
         Day11.day11 broken `shouldBe` Nothing
       
+    describe "Day 12" $ do
+      let example = "cpy 41 a\n\
+                    \inc a\n\
+                    \inc a\n\
+                    \dec a\n\
+                    \jnz a 2\n\
+                    \dec a" & lines
+      it "parses" $ do
+        Map.size (Day12.parse example) `shouldBe` 6
+      it "runs the example" $ do
+        let rs = Day12.run (Day12.parse example) 0 Map.empty
+        rs `shouldBe` Map.fromList [('a', 42)]
