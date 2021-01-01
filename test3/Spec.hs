@@ -83,3 +83,10 @@ main =
         it ("finds the longest for " ++ i) $ do
           Day17.longest i `shouldBe` Just o
 
+    describe "day 18" $ do
+      it "computes a new row" $ do
+        Day18.next "..^^." `shouldBe` ".^^^^"
+      
+      it "works out the larget example" $ do
+        (iterate Day18.next ".^^.^.^^^^" & take 10 & concat & filter (=='.') & length) `shouldBe` 38
+        
