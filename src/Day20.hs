@@ -56,6 +56,24 @@ process level queue
                     else process level' rest
 
 {-
+--- Part Two ---
+
+How many IPs are allowed by the blacklist?
 -}
 
-day20b ls = "hello world"
+rangesToHeap ranges = let increases = [ (a, -1) | (a, b) <- ranges ]
+                          decreases = [ (b+1, 1) | (a, b) <- ranges ]
+                      in  Heap.fromList (increases ++ decreases)  :: Heap.MinHeap (Integer, Integer)
+
+day20b ls = let ranges = parse ls
+                queue = rangesToHeap ranges
+            in  process' 4294967296 0 0 0 queue
+
+process' :: Integer -> Integer -> Integer -> Integer -> Heap.MinHeap (Integer, Integer) -> Integer
+process' top count curLow level queue
+  | Heap.null queue = count + max 0 (top - curLow)
+  | otherwise = let Just ((ip, reduction), rest) = Heap.view queue
+                    level' = level - reduction
+                    count' = if level == 0 then count + (ip - curLow) else count
+                    curLow' = if level' == 0 then ip else curLow
+                    in process' top count' curLow' level' rest

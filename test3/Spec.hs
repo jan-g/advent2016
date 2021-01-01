@@ -87,7 +87,7 @@ main =
     describe "day 18" $ do
       it "computes a new row" $ do
         Day18.next "..^^." `shouldBe` ".^^^^"
-      
+
       it "works out the larget example" $ do
         (iterate Day18.next ".^^.^.^^^^" & take 10 & concat & filter (=='.') & length) `shouldBe` 38
 
@@ -95,13 +95,19 @@ main =
       it "runs the small example" $ do
         let elves = Day19.starting 5
         Day19.move 1 elves `shouldBe` Map.singleton 3 (3, 5)
-      
+
       it ("runs part2 for 5") $ do
         (Day19.part2 $ Seq.fromList [1..5]) `shouldBe` 2
 
     describe "day 20" $ do
+      let example = "5-8\n\
+                    \0-2\n\
+                    \4-7" & lines
       it "runs the trivial example" $ do
-        let example = "5-8\n\
-                      \0-2\n\
-                      \4-7" & lines
         Day20.day20 example `shouldBe` Just 3
+      it "counts the available IP addresses" $ do
+        let ranges = Day20.parse example
+            q = Day20.rangesToHeap ranges
+        Day20.process' 10 0 0 0 q `shouldBe` 2
+        Day20.process' 9 0 0 0 q `shouldBe` 1
+        
