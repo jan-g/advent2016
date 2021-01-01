@@ -43,5 +43,10 @@ main :: IO ()
 main =
   hspec $ do
     describe "Day 15" $ do
-      it "works out cromulent strings" $ do
-        True `shouldBe` True
+      let example = "Disc #1 has 5 positions; at time=0, it is at position 4.\n\
+                    \Disc #2 has 2 positions; at time=0, it is at position 1." & lines
+      it "parses" $ do
+        Day15.parse example `shouldBe` [(1, 5, 4), (2, 2, 1)]
+      
+      it "solves" $ do
+        Day15.day15 example `shouldBe` 5

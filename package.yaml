@@ -70,3 +70,14 @@ tests:
     dependencies:
       - advent2016
       - hspec >= 2.5.5
+
+  advent2016-test-3:
+    main:                Spec.hs
+    source-dirs:         test3
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - advent2016
+      - hspec >= 2.5.5

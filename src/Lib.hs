@@ -197,7 +197,7 @@ combineDiophantine (m, f) (n, g) =
   let ((a, b), _) = solveDiophantine m (-n) (g - f)
       m' = m * a
       f' = m * b + f
-  in  (m', f')
+  in  (abs m', f' `mod` (abs m'))
 
 
 -- Re-usable BFS
