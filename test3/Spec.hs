@@ -11,6 +11,7 @@ import Data.List as L
 import Data.Maybe (catMaybes, fromJust, isJust)
 import qualified Data.ByteString.UTF8 as BSU
 import qualified Data.Sequence as Seq
+import qualified Text.ParserCombinators.ReadP as P
 
 import Lib
 import qualified Day1
@@ -142,3 +143,10 @@ main =
             prog = Day21.parse example
         length prog `shouldBe` 8
         Day21.process prog "abcde" `shouldBe` "decab"
+
+    describe "day 22" $ do
+      it "parses an example line" $ do
+        quickParse Day22.node
+           "/dev/grid/node-x28-y31   92T   72T    20T   78%"
+           `shouldBe` Just ((28,31),(92,72))
+           

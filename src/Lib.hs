@@ -22,6 +22,7 @@ module Lib
     , solveDiophantine
     , combineDiophantine
     , search, bfs, flood
+    , aStar
     ) where
 
 import Data.Array
@@ -242,7 +243,41 @@ bfs nextStates satisfying summariseState startState =
 -- return all the states visited until we reached the satisfying one
 flood nextStates satisfying summariseState startState =
   case search nextStates satisfying summariseState startState of
-    Left r -> Left r 
+    Left r -> Left r
     Right (_, _, reached) -> Right reached
 
 
+-- a* search. Provide a cost function and a heuristic. If the heuristic function is admissible,
+-- meaning that it never overestimates the actual cost to get to the goal, A* is guaranteed to
+-- return a least-cost path from start to goal.
+aStar :: (Ord s, Ord c, Num c, Ord t)
+      => (s -> Set.Set s)
+      -> (s -> Bool)
+      -> (s -> c)
+      -> (s -> c)
+      -> (s -> t)
+      -> s
+      -> Maybe s
+aStar nextStates finished cost heuristic summariseState startState =
+  aStar' nextStates finished cost heuristic summariseState
+         Set.empty (H.singleton (cost startState + heuristic startState, startState))
+
+aStar' :: (Ord s, Ord c, Num c, Ord t)
+      => (s -> Set.Set s)
+      -> (s -> Bool)
+      -> (s -> c)
+      -> (s -> c)
+      -> (s -> t)
+      -> Set.Set t
+      -> H.MinPrioHeap c s
+      -> Maybe s
+aStar' nextStates finished cost heuristic summariseState visited queue
+  | H.null queue = Nothing
+  | otherwise =
+    let Just ((f, state), queue') = H.view queue
+        summary = summariseState state
+        queue'' = foldl (\q s' -> H.insert (cost s' + heuristic s', s') q) queue' (nextStates state)
+    in  if finished state then Just state
+        else if Set.member summary visited
+        then aStar' nextStates finished cost heuristic summariseState visited queue'
+        else aStar' nextStates finished cost heuristic summariseState (Set.insert summary visited) queue''
