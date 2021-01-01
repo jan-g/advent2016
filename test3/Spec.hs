@@ -149,4 +149,15 @@ main =
         quickParse Day22.node
            "/dev/grid/node-x28-y31   92T   72T    20T   78%"
            `shouldBe` Just ((28,31),(92,72))
-           
+
+    describe "day 23" $ do
+      let example = "cpy 2 a\n\
+                    \tgl a\n\
+                    \tgl a\n\
+                    \tgl a\n\
+                    \cpy 1 a\n\
+                    \dec a\n\
+                    \dec a" & lines
+          prog = Day23.parse example
+      it "Runs the sample prog" $ do
+        Day23.run prog 0 Map.empty `shouldBe` Map.singleton 'a' 3
