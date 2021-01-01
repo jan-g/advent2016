@@ -8,7 +8,7 @@ import qualified Data.Set as Set
 import Control.Monad
 import Data.List.Split (splitOn)
 import Data.List as L
-import Data.Maybe (catMaybes, fromJust)
+import Data.Maybe (catMaybes, fromJust, isJust)
 import qualified Data.ByteString.UTF8 as BSU
 
 import Lib
@@ -132,14 +132,14 @@ main =
 
       it "seaches the example" $ do
         (Day11.day11 example & fromJust & fst) `shouldBe` 11
-      
+
       let broken = "The first floor contains a hydrogen-compatible microchip.\n\
                    \The second floor contains nothing relevant.\n\
                    \The third floor contains a lithium generator.\n\
                    \The fourth floor contains nothing relevant." & lines
       it "correctly surmises that a broken configuraiton has no solution" $ do
         Day11.day11 broken `shouldBe` Nothing
-      
+
     describe "Day 12" $ do
       let example = "cpy 41 a\n\
                     \inc a\n\
@@ -156,3 +156,23 @@ main =
     describe "Day 13" $ do
       it "searches the example problem" $ do
         Day13.hunt 10 (7, 4) `shouldBe` Just 11
+
+    describe "day 14" $ do
+      it "generates a hash stream" $ do
+        let hs = take 1000 $ Day14.hashStream "abc"
+        Day14.triple (hs !! 18 & snd) `shouldBe` Just '8'
+        Day14.quintuple 'e' (hs !! 816 & snd) `shouldBe` True
+      it "hunts a hash stream" $ do
+        let hs = Day14.hashStream "abc"
+            ds = Day14.digits hs
+        take 2 ds `shouldBe` [(39, 'e'), (92, '9')]
+        fst (ds !! 63) `shouldBe` 22728 
+      
+      it "stretches hashes" $ do
+        Day14.stretch "abc0" `shouldBe` "a107ff634856bb300138cac6568c0f24"
+
+      it "hunts a stretched stream" $ do
+        let hs = take 1000 $ Day14.stretchStream "abc"
+            ds = Day14.digits hs
+        head ds `shouldBe` (10, 'e')
+--        fst (ds !! 63) `shouldBe` 22551

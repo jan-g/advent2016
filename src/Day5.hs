@@ -14,7 +14,6 @@ import Data.Bits ((.&.), (.|.))
 import qualified Crypto.Hash.MD5 as MD5
 import qualified Data.ByteString as B
 import qualified Data.ByteString.UTF8 as BSU
-import qualified Text.Hex as Hex
 
 import Lib
 
