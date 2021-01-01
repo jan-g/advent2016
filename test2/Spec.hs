@@ -152,3 +152,7 @@ main =
       it "runs the example" $ do
         let rs = Day12.run (Day12.parse example) 0 Map.empty
         rs `shouldBe` Map.fromList [('a', 42)]
+
+    describe "Day 13" $ do
+      it "searches the example problem" $ do
+        Day13.hunt 10 (7, 4) `shouldBe` Just 11

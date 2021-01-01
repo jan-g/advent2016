@@ -21,7 +21,7 @@ module Lib
     , euc
     , solveDiophantine
     , combineDiophantine
-    , bfs
+    , search, bfs, flood
     ) where
 
 import Data.Array
@@ -78,7 +78,7 @@ mapReverseAll m =
       vks' = concat vks                 -- [(v, Set.Set k)]
   in Map.fromListWith Set.union vks'
 
--- Sudoku-style constraint narrowing: 
+-- Sudoku-style constraint narrowing:
 -- given a map of items to candidates, with a unique a->b solution available, work out that unique mapping
 narrowCandidateMap :: (Eq a, Ord b) => Map.Map a (Set.Set b) -> Either (Map.Map a (Set.Set b)) (Map.Map a b)
 narrowCandidateMap m =
@@ -201,13 +201,13 @@ combineDiophantine (m, f) (n, g) =
 
 
 -- Re-usable BFS
-bfs :: (Ord c, Ord s, Show c, Show s, Ord t) =>
+search :: (Ord c, Ord s, Show c, Show s, Ord t) =>
        ((c, s) -> Set.Set (c, s))               -- a function that returns a set of potential next states
     -> ((c, s) -> Bool)                         -- a function that tells if a state is one searched for
     -> (s -> t)                                 -- a state-summarising function to prevent repeating searches of equivalent states
     -> (c, s)                                   -- starting cost and state
-    -> Maybe (c, s)                             -- a solution, if one is found
-bfs nextStates satisfying summariseState (startCost, startState) =
+    -> Maybe (c, s, Set.Set t)                  -- a solution, if one is found
+search nextStates satisfying summariseState (startCost, startState) =
   bfs0 nextStates satisfying summariseState Set.empty (H.singleton (startCost, startState))
   where
   bfs0 :: (Ord c, Ord s, Show c, Show s, Ord t) =>
@@ -216,7 +216,7 @@ bfs nextStates satisfying summariseState (startCost, startState) =
       -> (s -> t)                                 -- a state-summarising function to prevent repeating searches of equivalent states
       -> Set.Set t                                -- equivalent states already processed
       -> H.MinPrioHeap c s                        -- search queue
-      -> Maybe (c, s)                             -- a solution, if one is found
+      -> Maybe (c, s, Set.Set t)                  -- a solution, if one is found
   bfs0 nextStates satisfying summariseState seenStates stateQueue
     | H.null stateQueue = Nothing
     | otherwise =
@@ -227,10 +227,20 @@ bfs nextStates satisfying summariseState (startCost, startState) =
           seen' = Set.insert summary seenStates
       in
       if satisfying (cost, state)
-      then Just (cost, state)
+      then Just (cost, state, seenStates)
       else if Set.member summary seenStates
       then -- trace ("skipping seen state at " ++ (show cost)) $
            bfs0 nextStates satisfying summariseState seenStates q'
       else -- trace ("bfs searches: " ++ (show cost)) $
            bfs0 nextStates satisfying summariseState seen' q''
 
+bfs nextStates satisfying summariseState startState =
+  case search nextStates satisfying summariseState startState of
+    Nothing -> Nothing
+    Just (cost, state, _) -> Just (cost, state)
+
+-- return all the states visited until we reached the satisfying one
+flood nextStates satisfying summariseState startState =
+  case search nextStates satisfying summariseState startState of
+    Nothing -> Nothing
+    Just (_, _, reached) -> Just reached
