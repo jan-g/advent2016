@@ -67,7 +67,10 @@ To begin, get your puzzle input.
 type Reg = Char
 type Value = Integer
 
-data Instr = Cpy Source Source | Inc Source | Dec Source | Jnz Source Source | Tgl Source deriving (Show, Eq)
+data Instr = Cpy Source Source | Inc Source | Dec Source | Jnz Source Source | Tgl Source
+            -- these added for part 2
+           | Nop | Mul Reg Reg Reg
+  deriving (Show, Eq)
 
 data Source = Reg Reg | Value Value deriving (Show, Eq)
 
@@ -101,6 +104,8 @@ run prog pc regs =
                       then run prog (succ pc) regs
                       else run prog (pc + eval v) regs
     Just (Tgl s) -> run (tgl (eval s)) (succ pc) regs
+    Just (Nop) -> run prog (succ pc) regs
+    Just (Mul a b c) -> run prog (succ pc) (store c (reg a * reg b))
   where
     eval (Value v) = v
     eval (Reg r) = reg r
@@ -119,6 +124,75 @@ day23 ls = run (parse ls) 0 (Map.singleton 'a' 7)
          & (Map.! 'a')
 
 {-
+--- Part Two ---
+
+The safe doesn't open, but it does make several angry noises to express its frustration.
+
+You're quite sure your logic is working correctly, so the only other thing is... you check the painting again. As it turns out, colored eggs are still eggs. Now you count 12.
+
+As you run the program with this new input, the prototype computer begins to overheat. You wonder what's taking so long, and whether the lack of any instruction more powerful than "add one" has anything to do with it. Don't bunnies usually multiply?
+
+Anyway, what value should actually be sent to the safe?
+
 -}
 
-day23b ls = "hello world"
+replace prog seq1 seq2 =
+  prog & Map.toAscList & map snd & replace' & zip [0..] & Map.fromList
+  where
+    len = length seq1 
+    replace' as
+     | null as     = []
+     | take len as == seq1 = seq2 ++ (drop len as)
+     | otherwise   = (head as):replace' (tail as) 
+
+day23b ls =
+  let prog = parse ls
+      prog' = replace prog [ Cpy (Value 0) (Reg 'a')
+                           , Cpy (Reg 'b') (Reg 'c')
+                           , Inc (Reg 'a')
+                           , Dec (Reg 'c')
+                           , Jnz (Reg 'c') (Value (-2))
+                           , Dec (Reg 'd')
+                           , Jnz (Reg 'd') (Value (-5))
+                           ]
+                           [ Nop
+                           , Nop
+                           , Nop
+                           , Nop
+                           , Nop
+                           , Nop
+                           , Mul 'b' 'd' 'a'
+                           ]
+                           
+  in  run prog' 0 (Map.singleton 'a' 12)
+                   & (Map.! 'a')
+
+{-
+cpy a b           b = a               b = a = 12
+dec b        B    b--                 b = 11
+cpy a d      D    E: d = a            d = 12   132
+cpy 0 a           a = 0               a = 0
+cpy b c           A: c = b            c = 11
+inc a             B: a++              
+dec c             c--                   ..
+jnz c -2          if c != 0 jmp B       a += c, c=0
+dec d             d--
+jnz d -5     A    if d != 0 jmp A     a = d * b  a = 132
+                                      d=0 c=0
+dec b        B    b--                 b = 10 9 8 7 6 5 4 3 2 1
+cpy b c      C    c = b               c = 10
+cpy c d      D    d = c               d = 10
+dec d             C: d--
+inc c             c++
+jnz d -2          if d != 0 jmp C     c = 2b
+tgl c             tgl c               d=0, c=2b, a=massive
+cpy -16 c         c = -16             c = -16
+jnz 1 c           jmp E: -> 
+cpy 76 c
+jnz 84 d
+inc a
+inc d
+jnz d -2
+inc c
+jnz c -5
+-}
