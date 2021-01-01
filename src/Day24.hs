@@ -80,6 +80,25 @@ distance maze from to =
                                                           maze Map.! (x', y') /= '#']
 
 {-
+--- Part Two ---
+
+Of course, if you leave the cleaning robot somewhere weird, someone is bound to notice.
+
+What is the fewest number of steps required to start at 0, visit every non-0 number marked on the map at least once, and then return to 0?
 -}
 
-day24b ls = "hello world"
+day24b ls =
+  let m = parse ls
+      digits = Map.filter isDigit m & Map.toList & map swap  -- :: Map.Map Char (Integer, Integer)
+      distances = Map.fromList [(a,
+                   Map.fromList [(b, distance m ca cb) | (b, cb) <- digits, b /= a])
+                   | (a, ca) <- digits]
+  in bfs (next distances) (finished distances) id (0, ('0', Set.singleton '0', False))
+  where
+    finished distances (_, (_, _, circled)) = circled
+    next distances (c, (at, visited, False))
+      | Set.size visited == length distances = Set.singleton (c + distances Map.! at Map.! '0', ('0', visited, True))
+      | otherwise = let dests = distances Map.! at
+                    in Set.fromList [ (c+d, (dest, Set.insert dest visited, False))
+                             | (dest, d) <- Map.toList dests
+                             ]
