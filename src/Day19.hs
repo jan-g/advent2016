@@ -120,7 +120,7 @@ part2' head preOpposite !elves =
            left = elves' Map.! head
        in if even (Map.size elves) then part2' left oppl elves'
                                    else part2' left (elves' Map.! oppl) elves'
-               
+
 setup' n = (1, n `div` 2, Map.fromList [(i + 1, (i + 1) `mod` n + 1) | i <- [0..n-1]])
 
 
