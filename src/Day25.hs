@@ -11,6 +11,7 @@ import Data.Maybe (catMaybes, isJust, fromJust, fromMaybe)
 import Text.ParserCombinators.ReadP as P
 import Numeric (readInt)
 import Data.Bits ((.&.), (.|.))
+import Data.Either
 
 import Debug.Trace (trace)
 
@@ -52,9 +53,7 @@ To begin, get your puzzle input.
 type Reg = Char
 type Value = Integer
 
-data Instr = Cpy Source Source | Inc Source | Dec Source | Jnz Source Source | Tgl Source
-            -- these added for part 2
-           | Nop | Mul Reg Reg Reg
+data Instr = Cpy Source Source | Inc Source | Dec Source | Jnz Source Source
             -- added for day 25
            | Out Source
   deriving (Show, Eq)
@@ -74,49 +73,55 @@ parseInstr = (string "inc " *> pure Inc <*> parseSource) <++
              (string "dec " *> pure Dec <*> parseSource) <++
              (string "cpy " *> pure Cpy <*> parseSource <* char ' ' <*> parseSource) <++
              (string "jnz " *> pure Jnz <*> parseSource <* char ' ' <*> parseSource) <++
-             (string "tgl " *> pure Tgl <*> parseSource) <++
              (string "out " *> pure Out <*> parseSource)
 
-run :: Map.Map Integer Instr -> Integer -> Map.Map Reg Value -> [Either Value (Map.Map Reg Value)]
-run prog pc regs =
+run :: Set.Set (Integer, Map.Map Reg Value) -> Map.Map Integer Instr -> Integer -> Map.Map Reg Value
+    -> [Either (Value, Integer, Map.Map Reg Value)
+               (Maybe (Value, Integer, Map.Map Reg Value))]
+run seen prog pc regs =
 --  trace ("pc=" ++ show pc) $
   case Map.lookup pc prog of
-    Nothing      -> [Right regs]
-    Just (Inc (Reg r)) -> run prog (succ pc) (store r (reg r + 1))
-    Just (Inc _) -> run prog (succ pc) regs
-    Just (Dec (Reg r)) -> run prog (succ pc) (store r (reg r - 1))
-    Just (Dec _) -> run prog (succ pc) regs
-    Just (Cpy s (Reg t)) -> run prog (succ pc) (store t (eval s))
-    Just (Cpy _ _) -> run prog (succ pc) regs
+    Nothing      -> [Right Nothing]
+    Just (Inc (Reg r)) -> run seen prog (succ pc) (store r (reg r + 1))
+    Just (Inc _) -> run seen prog (succ pc) regs
+    Just (Dec (Reg r)) -> run seen prog (succ pc) (store r (reg r - 1))
+    Just (Dec _) -> run seen prog (succ pc) regs
+    Just (Cpy s (Reg t)) -> run seen prog (succ pc) (store t (eval s))
+    Just (Cpy _ _) -> run seen prog (succ pc) regs
     Just (Jnz s v) -> if eval s == 0
-                      then run prog (succ pc) regs
-                      else run prog (pc + eval v) regs
-    Just (Tgl s) -> run (tgl (eval s)) (succ pc) regs
-    Just (Nop) -> run prog (succ pc) regs
-    Just (Mul a b c) -> run prog (succ pc) (store c (reg a * reg b))
-    Just (Out s) -> (Left $ eval s) : run prog (succ pc) regs
+                      then run seen prog (succ pc) regs
+                      else run seen prog (pc + eval v) regs
+    Just (Out s) -> if Set.member (pc, regs) seen then [Right $ Just (eval s, pc, regs)]
+                    else (Left (eval s, pc, regs)) : run (Set.insert (pc, regs) seen) prog (succ pc) regs
   where
     eval (Value v) = v
     eval (Reg r) = reg r
     reg r = fromMaybe 0 (Map.lookup r regs)
     store r v = Map.insert r v regs
-    tgl v = case Map.lookup (pc + v) prog of
-              Nothing -> prog
-              Just (Inc r) -> Map.insert (pc + v) (Dec r) prog
-              Just (Dec r) -> Map.insert (pc + v) (Inc r) prog
-              Just (Cpy s t) -> Map.insert (pc + v) (Jnz s t) prog
-              Just (Jnz s t) -> Map.insert (pc + v) (Cpy s t) prog
-              Just (Tgl s) ->  Map.insert (pc + v) (Inc s) prog
 
 
 day25 ls = hunt 1
+--  run Set.empty prog 0 $ Map.singleton 'a' 158
   where
     prog = parse ls
-    target = take 100 $ cycle [Left 0, Left 1]
+    sequence n = take 1000 $ run Set.empty prog 0 $ Map.singleton 'a' n
+    repetition n = let s = sequence n
+                       front = init s
+                       final = last s
+                       Left (_, pc0, reg0) = head s
+                   in  -- Does this loop back to the start?
+                   case final of
+                     Right (Just (_, pc1, reg1)) -> if pc1 == pc0 && reg1 == reg0
+                                                    then Just $ valuesOf front
+                                                    else Nothing
+                     _ -> Nothing
+    valuesOf items = items & map (\(Left (out, _, _)) -> out)
+    target = cycle [0, 1]
     hunt n =
       trace ("checking " ++ show n) $
-      if take 100 (run prog 0 $ Map.singleton 'a' n) == target then n
-      else hunt (succ n)
+      case repetition n of
+        Nothing -> hunt (succ n)
+        Just values -> if values == take (length values) target then n else hunt (succ n)
 
 {-
 --- Part Two ---
